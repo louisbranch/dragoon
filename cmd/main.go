@@ -2,45 +2,56 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
+	"path/filepath"
 
-	"github.com/emicklei/proto"
+	"github.com/luizbranco/dragoon"
+	"github.com/luizbranco/dragoon/internal/dot"
+	"github.com/luizbranco/dragoon/internal/parser"
 )
 
 func main() {
-	reader, _ := os.Open(os.Args[1])
-	defer reader.Close()
 
-	parser := proto.NewParser(reader)
-	definition, err := parser.Parse()
-	if err != nil {
-		log.Fatal(err)
+	if len(os.Args) < 2 {
+		fmt.Printf("missing file(s) path\n")
+		os.Exit(1)
 	}
 
-	proto.Walk(definition, proto.WithService(handleService))
-}
+	var files []string
 
-func handleService(s *proto.Service) {
-	fmt.Println(s.Name)
+	for i := 1; i < len(os.Args); i++ {
 
-LOOP:
-	for _, e := range s.Elements {
-		switch t := e.(type) {
-		case *proto.RPC:
-			if t.Comment != nil {
-				for _, l := range t.Comment.Lines {
-					l := strings.TrimLeft(l, " ")
-					if strings.HasPrefix(l, "dragon:ignore") {
-						continue LOOP
-					}
-				}
+		root := os.Args[i]
+
+		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Printf("failed to open file %q - %s", filepath.Join(root, path), err)
+				os.Exit(1)
 			}
-			fmt.Printf("\t%s\n", t.Name)
-		case *proto.Comment:
-		default:
-			fmt.Printf("%+v", e)
-		}
+
+			if filepath.Ext(path) == ".proto" {
+				files = append(files, path)
+			}
+
+			return nil
+		})
+
 	}
+
+	var services []dragoon.Service
+
+	for _, f := range files {
+
+		s, err := parser.Parse(f)
+		if err != nil {
+			fmt.Printf("failed to parse file %q - %s", f, err)
+			os.Exit(1)
+		}
+
+		services = append(services, s...)
+	}
+
+	graph := dot.Graph(services)
+
+	fmt.Println(graph)
 }
