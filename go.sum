@@ -1,2 +1,4 @@
+github.com/emicklei/dot v0.10.1 h1:bkzvwgIhhw/cuxxnJy5/5+ZL3GnhFxFfv0eolHtWE2w=
+github.com/emicklei/dot v0.10.1/go.mod h1:kZg82Ikwc4pqb31Ct2yb0B7RUqxh3JESIXw2uWSv/xY=
 github.com/emicklei/proto v1.7.0 h1:5iEEswaKG9xfE8aqbERdx5MXV/QizS63UvYWga2v9FY=
 github.com/emicklei/proto v1.7.0/go.mod h1:rn1FgRS/FANiZdD2djyH7TMA9jdRDcYQ9IEN9yvjX0A=

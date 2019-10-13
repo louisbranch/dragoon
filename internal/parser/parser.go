@@ -5,20 +5,12 @@ import (
 	"strings"
 
 	"github.com/emicklei/proto"
+	"github.com/luizbranco/dragoon"
 )
 
 const ignore = "dragoon:ignore"
 
-type Service struct {
-	Name string
-	RPCs []RPC
-}
-
-type RPC struct {
-	Name string
-}
-
-func Parse(basepath string) ([]Service, error) {
+func Parse(basepath string) ([]dragoon.Service, error) {
 	reader, err := os.Open(basepath)
 	if err != nil {
 		return nil, err
@@ -32,7 +24,7 @@ func Parse(basepath string) ([]Service, error) {
 		return nil, err
 	}
 
-	var services []Service
+	var services []dragoon.Service
 
 	proto.Walk(definition, proto.WithService(func(s *proto.Service) {
 		services = append(services, parseService(s))
@@ -41,9 +33,9 @@ func Parse(basepath string) ([]Service, error) {
 	return services, nil
 }
 
-func parseService(s *proto.Service) Service {
+func parseService(s *proto.Service) dragoon.Service {
 
-	var rpcs []RPC
+	var rpcs []dragoon.RPC
 
 LOOP:
 	for _, e := range s.Elements {
@@ -59,13 +51,13 @@ LOOP:
 				}
 			}
 
-			rpcs = append(rpcs, RPC{
+			rpcs = append(rpcs, dragoon.RPC{
 				Name: t.Name,
 			})
 		}
 	}
 
-	return Service{
+	return dragoon.Service{
 		Name: s.Name,
 		RPCs: rpcs,
 	}
