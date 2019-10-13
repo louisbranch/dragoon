@@ -6,12 +6,14 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/luizbranco/dragoon"
 )
 
 func TestParse(t *testing.T) {
 	tcs := map[string]struct {
 		input    string
-		services []Service
+		services []dragoon.Service
 		err      error
 	}{
 		"ok": {
@@ -24,10 +26,10 @@ func TestParse(t *testing.T) {
 
 					rpc DebitAccount(DebitAccountRequest) returns (DebitAccountResponse) {}
 				}`,
-			services: []Service{
+			services: []dragoon.Service{
 				{
 					Name: "Balancer",
-					RPCs: []RPC{
+					RPCs: []dragoon.RPC{
 						{Name: "CreditAccount"},
 						{Name: "DebitAccount"},
 					},
